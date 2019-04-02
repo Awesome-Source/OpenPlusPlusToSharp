@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenPlusPlusToSharp", "OpenPlusPlusToSharp\OpenPlusPlusToSharp.csproj", "{98DFEF45-BE07-4B4D-861A-962D50DE8AF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenPlusPlusToSharpTests", "OpenPlusPlusToSharpTests\OpenPlusPlusToSharpTests.csproj", "{C168232E-74A7-4D50-9EED-CD7DD5B70765}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98DFEF45-BE07-4B4D-861A-962D50DE8AF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98DFEF45-BE07-4B4D-861A-962D50DE8AF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98DFEF45-BE07-4B4D-861A-962D50DE8AF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98DFEF45-BE07-4B4D-861A-962D50DE8AF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C168232E-74A7-4D50-9EED-CD7DD5B70765}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C168232E-74A7-4D50-9EED-CD7DD5B70765}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C168232E-74A7-4D50-9EED-CD7DD5B70765}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C168232E-74A7-4D50-9EED-CD7DD5B70765}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C445937B-86C9-42BB-8D78-1132D3B6D120}
+	EndGlobalSection
+EndGlobal
