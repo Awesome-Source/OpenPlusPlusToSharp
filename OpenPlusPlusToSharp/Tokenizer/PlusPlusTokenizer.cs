@@ -28,15 +28,26 @@ namespace OpenPlusPlusToSharp.Tokenizer
         {
             var tokens = new List<Token>();
 
-            while (_currentIndex < _source.Length)
+            while (!IsEndOfFile())
             {
                 ConsumeWhiteSpace();
-                var tokenText = ReadUntilWhiteSpace();
+
+                if (IsEndOfFile())
+                {
+                    break;
+                }
+
+                var tokenText = ReadToken();
                 var tokenType = DetermineTokenType(tokenText);
                 tokens.Add(new Token(tokenText, tokenType));
             }
 
             return tokens;
+        }
+
+        private bool IsEndOfFile()
+        {
+            return _currentIndex >= _source.Length;
         }
 
         private TokenType DetermineTokenType(string tokenText)
@@ -49,21 +60,22 @@ namespace OpenPlusPlusToSharp.Tokenizer
             }
         }
 
-        private string ReadUntilWhiteSpace()
+        /// <summary>
+        /// Reads the next token (until whitespace or semicolon). If the token is a string literal then the white spaces inside the literal are ignored.
+        /// </summary>
+        /// <returns>The extracted token.</returns>
+        private string ReadToken()
         {
             var buffer = new StringBuilder();
-            var insideStringLiteral = false;
+            var readContext = new ReadContext();
 
             var currentChar = GetCurrentChar();
-            while (insideStringLiteral || !IsWhiteSpaceCharacter(currentChar))
+            while (readContext.IsInsideStringLiteral || !IsWhiteSpaceCharacter(currentChar))
             {
-                if (currentChar == '"')
-                {
-                    insideStringLiteral = !insideStringLiteral;
-                }
+                HandleStringLiteralIfNecessary(readContext, currentChar);
 
                 buffer.Append(currentChar);
-                if (!AdvanceOne())
+                if (!AdvanceOne() || currentChar == ';')
                 {
                     break;
                 }
@@ -72,6 +84,26 @@ namespace OpenPlusPlusToSharp.Tokenizer
             }
 
             return buffer.ToString();
+        }
+
+        private static void HandleStringLiteralIfNecessary(ReadContext readContext, char currentChar)
+        {
+            if (!readContext.IsEscaped)
+            {
+                if (currentChar == '"')
+                {
+                    readContext.IsInsideStringLiteral = !readContext.IsInsideStringLiteral;
+                }
+
+                if (currentChar == '\\')
+                {
+                    readContext.IsEscaped = true;
+                }
+            }
+            else
+            {
+                readContext.IsEscaped = false;
+            }
         }
 
         private void ConsumeWhiteSpace()
