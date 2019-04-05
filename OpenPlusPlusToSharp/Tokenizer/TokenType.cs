@@ -7,6 +7,10 @@
     {
         Text,
         BeginBlock,
-        EndBlock
+        EndBlock,
+        OpeningBracket,
+        ClosingBracket,
+        Semicolon,
+        Comma
     }
 }

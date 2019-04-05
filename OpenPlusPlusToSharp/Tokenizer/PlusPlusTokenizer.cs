@@ -14,6 +14,15 @@ namespace OpenPlusPlusToSharp.Tokenizer
         private int _currentIndex = 0;
         private int _lineNumber = 0;
         private int _columnIndex = 0;
+        private static List<char> _specialChars = new List<char>
+        {
+            '{',
+            '}',
+            '(',
+            ')',
+            ';',
+            ',',
+        };
 
         /// <summary>
         /// Creates a tokenizer for the provided source.
@@ -41,15 +50,55 @@ namespace OpenPlusPlusToSharp.Tokenizer
                     break;
                 }
 
-                ProcessToken(tokens);
+                ProcessTextToken(tokens);
+                ProcessSpecialToken(tokens);
             }
 
             return tokens;
         }
 
-        private void ProcessToken(List<Token> tokens)
+        private void ProcessSpecialToken(List<Token> tokens)
         {
-            var tokenText = ReadToken();
+            var tokenText = ReadSpecialToken();
+
+            if(string.IsNullOrEmpty(tokenText))
+            {
+                return;
+            }
+
+            AddToken(tokens, tokenText);
+        }
+
+        private string ReadSpecialToken()
+        {
+            if (IsEndOfFile())
+            {
+                return null;
+            }
+
+            var currentChar = GetCurrentChar();
+            if (_specialChars.Any(c => c == currentChar))
+            {
+                AdvanceOne();
+                return currentChar.ToString();
+            }
+
+            return null;
+        }
+
+        private void ProcessTextToken(List<Token> tokens)
+        {
+            var tokenText = ReadTextToken();
+
+            if (string.IsNullOrEmpty(tokenText))
+            {
+                return;
+            }
+
+            AddToken(tokens, tokenText);
+        }
+        private void AddToken(List<Token> tokens, string tokenText)
+        {
             var tokenType = DetermineTokenType(tokenText);
             var columnIndexOfTokenStart = _columnIndex - tokenText.Length;
             tokens.Add(new Token(tokenText, tokenType, _lineNumber + 1, columnIndexOfTokenStart + 1));
@@ -66,6 +115,10 @@ namespace OpenPlusPlusToSharp.Tokenizer
             {
                 case "{": return TokenType.BeginBlock;
                 case "}": return TokenType.EndBlock;
+                case "(": return TokenType.OpeningBracket;
+                case ")": return TokenType.ClosingBracket;
+                case ";": return TokenType.Semicolon;
+                case ",": return TokenType.Comma;
                 default: return TokenType.Text;
             }
         }
@@ -74,7 +127,7 @@ namespace OpenPlusPlusToSharp.Tokenizer
         /// Reads the next token (until whitespace or semicolon). If the token is a string literal then the white spaces inside the literal are ignored.
         /// </summary>
         /// <returns>The extracted token.</returns>
-        private string ReadToken()
+        private string ReadTextToken()
         {
             var buffer = new StringBuilder();
             var readContext = new ReadContext();
@@ -84,9 +137,14 @@ namespace OpenPlusPlusToSharp.Tokenizer
             {
                 HandleStringLiteralIfNecessary(readContext, currentChar);
 
+                if(!readContext.IsInsideStringLiteral && _specialChars.Any(c => c == currentChar))
+                {
+                    break;
+                }
+
                 buffer.Append(currentChar);
 
-                if (!AdvanceOne() || currentChar == ';')
+                if (!AdvanceOne())
                 {
                     break;
                 }
@@ -124,11 +182,7 @@ namespace OpenPlusPlusToSharp.Tokenizer
 
             while (isWhiteSpaceChar)
             {
-                if (currentChar == '\n')
-                {
-                    _lineNumber++;
-                    _columnIndex = -1; //the new line is not a visible char -> it should not be counted by the next advance statement
-                }
+                HandleNewLine(currentChar);
 
                 if (!AdvanceOne())
                 {
@@ -137,6 +191,15 @@ namespace OpenPlusPlusToSharp.Tokenizer
 
                 currentChar = GetCurrentChar();
                 isWhiteSpaceChar = IsWhiteSpaceCharacter(currentChar);
+            }
+        }
+
+        private void HandleNewLine(char currentChar)
+        {
+            if (currentChar == '\n')
+            {
+                _lineNumber++;
+                _columnIndex = -1; //the new line is not a visible char -> it should not be counted by the next advance statement
             }
         }
 

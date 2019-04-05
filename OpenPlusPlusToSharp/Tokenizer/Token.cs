@@ -39,5 +39,14 @@
             LineNumber = lineNumber;
             Column = column;
         }
+
+        /// <summary>
+        /// Returns a string representation of the token.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"Content: [{Content}], Type: {TokenType} ({LineNumber},{Column})";
+        }
     }
 }

@@ -28,6 +28,8 @@ The following tokens are recognized:
 - } = End of a block
 - ( = Opening bracket
 - ) = Closing bracket
+- ; = End of statement
+- , = Separator
 - Every other token is of type text
 
 A token is also complete if it ends with a semicolon.
