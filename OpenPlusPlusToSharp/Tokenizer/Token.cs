@@ -16,14 +16,28 @@
         public TokenType TokenType { get; }
 
         /// <summary>
+        /// The line number from the source file the token was read from.
+        /// </summary>
+        public int LineNumber { get; }
+
+        /// <summary>
+        /// The column index from the line of the source file the token was read from.
+        /// </summary>
+        public int Column { get; set; }
+
+        /// <summary>
         /// Creates a token with the provided content and type.
         /// </summary>
         /// <param name="content">The raw content of the token.</param>
         /// <param name="tokenType">The type of the token.</param>
-        public Token(string content, TokenType tokenType)
+        /// <param name="lineNumber">The line number of the source file</param>
+        /// <param name="column">The column of the source file</param>
+        public Token(string content, TokenType tokenType, int lineNumber, int column)
         {
             Content = content;
             TokenType = tokenType;
+            LineNumber = lineNumber;
+            Column = column;
         }
     }
 }

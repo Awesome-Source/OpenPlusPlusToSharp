@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace OpenPlusPlusToSharp.Tokenizer
@@ -10,6 +12,8 @@ namespace OpenPlusPlusToSharp.Tokenizer
     {
         private string _source;
         private int _currentIndex = 0;
+        private int _lineNumber = 0;
+        private int _columnIndex = 0;
 
         /// <summary>
         /// Creates a tokenizer for the provided source.
@@ -37,12 +41,18 @@ namespace OpenPlusPlusToSharp.Tokenizer
                     break;
                 }
 
-                var tokenText = ReadToken();
-                var tokenType = DetermineTokenType(tokenText);
-                tokens.Add(new Token(tokenText, tokenType));
+                ProcessToken(tokens);
             }
 
             return tokens;
+        }
+
+        private void ProcessToken(List<Token> tokens)
+        {
+            var tokenText = ReadToken();
+            var tokenType = DetermineTokenType(tokenText);
+            var columnIndexOfTokenStart = _columnIndex - tokenText.Length;
+            tokens.Add(new Token(tokenText, tokenType, _lineNumber + 1, columnIndexOfTokenStart + 1));
         }
 
         private bool IsEndOfFile()
@@ -75,6 +85,7 @@ namespace OpenPlusPlusToSharp.Tokenizer
                 HandleStringLiteralIfNecessary(readContext, currentChar);
 
                 buffer.Append(currentChar);
+
                 if (!AdvanceOne() || currentChar == ';')
                 {
                     break;
@@ -109,14 +120,23 @@ namespace OpenPlusPlusToSharp.Tokenizer
         private void ConsumeWhiteSpace()
         {
             var currentChar = GetCurrentChar();
-            while (IsWhiteSpaceCharacter(currentChar))
+            var isWhiteSpaceChar = IsWhiteSpaceCharacter(currentChar);
+
+            while (isWhiteSpaceChar)
             {
+                if (currentChar == '\n')
+                {
+                    _lineNumber++;
+                    _columnIndex = -1; //the new line is not a visible char -> it should not be counted by the next advance statement
+                }
+
                 if (!AdvanceOne())
                 {
                     break;
                 }
 
                 currentChar = GetCurrentChar();
+                isWhiteSpaceChar = IsWhiteSpaceCharacter(currentChar);
             }
         }
 
@@ -133,8 +153,9 @@ namespace OpenPlusPlusToSharp.Tokenizer
         private bool AdvanceOne()
         {
             _currentIndex++;
+            _columnIndex++;
 
-            return _currentIndex < _source.Length;
+            return !IsEndOfFile();
         }
     }
 }
