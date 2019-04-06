@@ -22,17 +22,12 @@ Read tokens
 -----------
 
 The tokenizer reads the sourc file and returns all recognized tokens.
-The following tokens are recognized:
+There are three types of tokens:
 
-- { = Begin of a block
-- } = End of a block
-- ( = Opening bracket
-- ) = Closing bracket
-- ; = End of statement
-- , = Separator
-- Every other token is of type text
+- Special Characters: { } ( ) ;  < > = ! ? : + - * / % & ,
+- String literals
+- Text
 
-A token is also complete if it ends with a semicolon.
 A string literal is exactly one token. Therefore no tokens are taken from the inside of a string literal.
 
 Syntax Hierachy

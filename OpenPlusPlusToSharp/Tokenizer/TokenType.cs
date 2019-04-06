@@ -6,11 +6,7 @@
     public enum TokenType
     {
         Text,
-        BeginBlock,
-        EndBlock,
-        OpeningBracket,
-        ClosingBracket,
-        Semicolon,
-        Comma
+        SpecialCharacter,
+        StringLiteral
     }
 }

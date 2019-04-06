@@ -16,12 +16,7 @@ namespace OpenPlusPlusToSharp.Tokenizer
         private int _columnIndex = 0;
         private static List<char> _specialChars = new List<char>
         {
-            '{',
-            '}',
-            '(',
-            ')',
-            ';',
-            ',',
+            '{', '}', '(', ')', ';', ',', '<', '>', '=', '!', '?', ':', '+', '-', '*', '/', '%', '&'
         };
 
         /// <summary>
@@ -79,7 +74,7 @@ namespace OpenPlusPlusToSharp.Tokenizer
             var currentChar = GetCurrentChar();
             if (_specialChars.Any(c => c == currentChar))
             {
-                AdvanceOne();
+                MoveToNextChar();
                 return currentChar.ToString();
             }
 
@@ -111,16 +106,22 @@ namespace OpenPlusPlusToSharp.Tokenizer
 
         private TokenType DetermineTokenType(string tokenText)
         {
-            switch (tokenText)
+            if(tokenText.StartsWith('"') && tokenText.EndsWith('"'))
             {
-                case "{": return TokenType.BeginBlock;
-                case "}": return TokenType.EndBlock;
-                case "(": return TokenType.OpeningBracket;
-                case ")": return TokenType.ClosingBracket;
-                case ";": return TokenType.Semicolon;
-                case ",": return TokenType.Comma;
-                default: return TokenType.Text;
+                return TokenType.StringLiteral;
             }
+
+            if(tokenText.Length > 1)
+            {
+                return TokenType.Text;
+            }
+
+            if(_specialChars.Any(c => c == tokenText[0]))
+            {
+                return TokenType.SpecialCharacter;
+            }
+
+            return TokenType.Text;
         }
 
         /// <summary>
@@ -143,8 +144,8 @@ namespace OpenPlusPlusToSharp.Tokenizer
                 }
 
                 buffer.Append(currentChar);
-
-                if (!AdvanceOne())
+                MoveToNextChar();
+                if (IsEndOfFile())
                 {
                     break;
                 }
@@ -183,8 +184,8 @@ namespace OpenPlusPlusToSharp.Tokenizer
             while (isWhiteSpaceChar)
             {
                 HandleNewLine(currentChar);
-
-                if (!AdvanceOne())
+                MoveToNextChar();
+                if (IsEndOfFile())
                 {
                     break;
                 }
@@ -213,12 +214,10 @@ namespace OpenPlusPlusToSharp.Tokenizer
             return _source[_currentIndex];
         }
 
-        private bool AdvanceOne()
+        private void MoveToNextChar()
         {
             _currentIndex++;
             _columnIndex++;
-
-            return !IsEndOfFile();
         }
     }
 }
