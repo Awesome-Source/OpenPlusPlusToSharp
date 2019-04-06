@@ -6,6 +6,9 @@
     /// </summary>
     public class Directives
     {
+        /// <summary>
+        /// A c++ include directive starts like this.
+        /// </summary>
         public const string IncludeDirective = "#include";
     }
 }
