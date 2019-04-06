@@ -6,13 +6,20 @@
     /// </summary>
     public enum NodeType
     {
+        /// <summary>
+        /// The top level node of a ParseTree is of type SourceFile.
+        /// The content of this node is the file name.
+        /// All other nodes are direct or indirect descendents of this node.
+        /// </summary>
+        SourceFile,
+        /// <summary>
+        /// Nodes with this type contain the file name of the include. They do not have descendents.
+        /// </summary>
         IncludeDirective,
-        IncludeContent,
         ClassDeclaration,
         MethodDeclaration,
         ParameterList,
         AccessModifier,
         MethodBody,
-        SourceFile
     }
 }

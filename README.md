@@ -41,8 +41,7 @@ The description contains the necessary and optional child nodes of a specific pa
 	- 0..n IncludeDirective
 	- 0..n ClassDeclaration
 	
-- IncludeDirective
-	- 1 IncludeContent
+- IncludeDirective (content: include file name)
 	
 - ClassDeclaration (content: class name)
 	- 0..n MethodDeclaration

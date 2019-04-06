@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using OpenPlusPlusToSharp.Constants;
 using OpenPlusPlusToSharp.Tokenizer;
 
 namespace OpenPlusPlusToSharp.Parser
@@ -9,23 +7,22 @@ namespace OpenPlusPlusToSharp.Parser
     /// The <see cref="PlusPlusParser"/> is used to turn a C++ source file into a <see cref="ParseTree"/>.
     /// </summary>
     public class PlusPlusParser
-    {
-        private string _sourceFileContent;
-        private ParseTree _tree;
-        private List<Token> _tokens;
-        private int _currentIndex = -1;
+    {        
+        private readonly ParseTree _tree;
+        private readonly List<IParser> _parsers;
+        private readonly ParseContext _parseContext;
 
         /// <summary>
         /// Creates a <see cref="PlusPlusParser"/> that parses the provided content.
         /// </summary>
-        /// <param name="sourceFileContent">The file content that should be parsed.</param>
         /// <param name="sourceFileName">The filename of the sourc file.</param>
-        public PlusPlusParser(string sourceFileContent, string sourceFileName)
+        /// <param name="tokens">The tokens that are read from a source file.</param>
+        /// <param name="topLevelParsers">The top level parsers that are used by this parser.</param>
+        public PlusPlusParser(string sourceFileName, List<Token> tokens, List<IParser> topLevelParsers)
         {
-            _sourceFileContent = sourceFileContent;
             _tree = new ParseTree(sourceFileName);
-            var tokenizer = new PlusPlusTokenizer(_sourceFileContent);
-            _tokens = tokenizer.Tokenize();
+            _parseContext = new ParseContext(tokens);
+            _parsers = topLevelParsers;
         }
 
         /// <summary>
@@ -34,42 +31,40 @@ namespace OpenPlusPlusToSharp.Parser
         /// <returns>The <see cref="ParseTree"/> representing the file content.</returns>
         public ParseTree Parse()
         {
-            while(_currentIndex < _tokens.Count)
+            while(!_parseContext.AllTokensProcessed())
             {
-                var topLevelToken = GetNextToken();
-
-                if (topLevelToken == null)
-                {
-                    break;
-                }
-
-                ParseTopLevel(topLevelToken);
+                ParseTopLevel();
             }
 
             return _tree;
         }
 
-        private void ParseTopLevel(Token topLevelToken)
+        private void ParseTopLevel()
         {
-            if(topLevelToken.Content == Directives.IncludeDirective)
+            foreach (var parser in _parsers)
             {
-                ParseInclude(topLevelToken);
+                var result = parser.TryParse(_parseContext);
+
+                if (result.Success)
+                {
+                    _tree.RootNode.Descendents.Add(result.ParsedNode);
+                    _parseContext.CurrentIndex += result.ReadTokens;
+                    return;
+                }
+            }
+
+            ThrowTokenNotRecognizedExceptionIfAllTokensAreProcessed();
+        }
+
+        private void ThrowTokenNotRecognizedExceptionIfAllTokensAreProcessed()
+        {
+            if (_parseContext.AllTokensProcessed())
+            {
                 return;
             }
-        }
 
-        private void ParseInclude(Token topLevelToken)
-        {
-            var includeNode = new ParseNode(topLevelToken.Content, NodeType.IncludeDirective);
-            var includeContentToken = GetNextToken();
-            var includeContentNode = new ParseNode(includeContentToken.Content, NodeType.IncludeContent);
-            includeNode.Descendents.Add(includeContentNode);
-            _tree.RootNode.Descendents.Add(includeNode);
-        }
-
-        private Token GetNextToken()
-        {
-            return _tokens.ElementAtOrDefault(++_currentIndex);
+            var token = _parseContext.GetCurrentToken();
+            throw new TokenNotRecognizedException(token);
         }
     }
 }
