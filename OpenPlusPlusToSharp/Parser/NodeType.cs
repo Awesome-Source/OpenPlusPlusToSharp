@@ -12,14 +12,30 @@
         /// All other nodes are direct or indirect descendents of this node.
         /// </summary>
         SourceFile,
+
         /// <summary>
         /// Nodes with this type contain the file name of the include. They do not have descendents.
         /// </summary>
         IncludeDirective,
-        ClassDeclaration,
-        MethodDeclaration,
-        ParameterList,
-        AccessModifier,
-        MethodBody,
+
+        /// <summary>
+        /// Nodes with this type contain the name of the define. They do not have descendents.
+        /// </summary>
+        IfNotDefinedDirective,
+
+        /// <summary>
+        /// Nodes with this type don't contain content. They do not have descendents.
+        /// </summary>
+        EndIfDirective,
+
+        /// <summary>
+        /// Nodes with this type contain the name of the defined symbol. They do not have descendents.
+        /// </summary>
+        DefineDirective,
+
+        /// <summary>
+        /// Nodes with this symbol contain the content of the pragma. They do not have descendents.
+        /// </summary>
+        PragmaDirective
     }
 }

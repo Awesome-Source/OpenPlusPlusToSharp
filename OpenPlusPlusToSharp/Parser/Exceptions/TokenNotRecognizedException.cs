@@ -1,7 +1,7 @@
 ﻿using OpenPlusPlusToSharp.Tokenizer;
 using System;
 
-namespace OpenPlusPlusToSharp.Parser
+namespace OpenPlusPlusToSharp.Parser.Exceptions
 {
     /// <summary>
     /// This exception should be thrown if a token is processed that was not expected.

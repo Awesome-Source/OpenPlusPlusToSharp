@@ -44,7 +44,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
             var content = nextToken.Content.Replace("\"", string.Empty);
             var includeNode = new ParseNode(content, NodeType.IncludeDirective);
 
-            return ParseResult.ParseSuccess(includeNode, 1);
+            return ParseResult.ParseSuccess(includeNode, 2);
         }
 
         private static ParseResult ParseStandardInclude(Token token)
