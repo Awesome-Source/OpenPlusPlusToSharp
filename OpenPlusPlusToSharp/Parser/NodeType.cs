@@ -36,6 +36,16 @@
         /// <summary>
         /// Nodes with this symbol contain the content of the pragma. They do not have descendents.
         /// </summary>
-        PragmaDirective
+        PragmaDirective,
+
+        /// <summary>
+        /// Nodes with this symbol contain the name of the namespace. They do not have descendents.
+        /// </summary>
+        UsingNamespaceStatement,
+
+        /// <summary>
+        /// Nodes with this symbol contain the class name of the forward declaration. They do not have descendents.
+        /// </summary>
+        ForwardDeclaration
     }
 }

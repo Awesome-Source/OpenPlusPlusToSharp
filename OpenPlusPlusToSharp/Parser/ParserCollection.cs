@@ -19,6 +19,8 @@ namespace OpenPlusPlusToSharp.Parser
             parsers.Add(new IncludeParser());
             parsers.Add(new DefineParser());
             parsers.Add(new PragmaParser());
+            parsers.Add(new UsingParser());
+            parsers.Add(new ForwardDeclarationParser());
 
             return parsers;
         }

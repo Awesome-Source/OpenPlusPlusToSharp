@@ -33,5 +33,14 @@ namespace OpenPlusPlusToSharp.Parser
             Content = content;
             NodeType = nodeType;
         }
+
+        /// <summary>
+        /// Returns a string representation of the node.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"Type: {NodeType}, Content: {Content}";
+        }
     }
 }
