@@ -37,6 +37,17 @@ namespace OpenPlusPlusToSharp.Parser
             return Tokens.ElementAtOrDefault(CurrentIndex);
         }
 
+        public ParseContext CreateSubContext(int startTokenOffset, int endTokenOffset)
+        {
+            var subContextTokenCount = endTokenOffset - startTokenOffset;
+            var subContextTokens = Tokens
+                .Skip(startTokenOffset)
+                .Take(subContextTokenCount)
+                .ToList();
+
+            return new ParseContext(subContextTokens);
+        }
+
         /// <summary>
         /// Returns a token that is at a higher index than the current index. 
         /// If there is no token at this index null is returned.

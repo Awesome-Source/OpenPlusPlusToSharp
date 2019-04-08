@@ -44,7 +44,13 @@ The description contains the necessary and optional child nodes of a specific pa
 - IncludeDirective (content: include file name)
 	
 - ClassDeclaration (content: class name)
+	- 0..n SuperClassInheritance
 	- 0..n MethodDeclaration
+	
+- SuperClassInheritance (content: name of the class the current class inherits from)
+	- 1 AccessModifier
+	
+- AccessModifier (content: the modifier itself)
 	
 - MethodDeclaration (content: method name)
 	- 0..n KeywordList

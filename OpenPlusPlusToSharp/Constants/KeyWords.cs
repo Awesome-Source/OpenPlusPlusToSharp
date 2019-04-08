@@ -3,7 +3,7 @@
     /// <summary>
     /// This class contains constants for every C++ keyword supported by the parser.
     /// </summary>
-    public class KeyWords
+    public static class KeyWords
     {
         /// <summary>
         /// The C++ using keyword.
@@ -29,5 +29,20 @@
         /// The C++ private keyword.
         /// </summary>
         public const string Private = "private";
+
+        /// <summary>
+        /// The C++ protected keyword.
+        /// </summary>
+        public const string Protected = "protected";
+
+        /// <summary>
+        /// Returns true if the input is an access modifier keyword. Otherwise false is returned.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static bool IsAccessModifier(string input)
+        {
+            return input == Public || input == Protected || input == Private;
+        }
     }
 }

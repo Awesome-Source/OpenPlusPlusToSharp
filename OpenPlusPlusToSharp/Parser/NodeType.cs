@@ -46,6 +46,10 @@
         /// <summary>
         /// Nodes with this symbol contain the class name of the forward declaration. They do not have descendents.
         /// </summary>
-        ForwardDeclaration
+        ForwardDeclaration,
+
+        ClassDeclaration,
+        ClassInheritanceDeclaration,
+        AccessModifier
     }
 }

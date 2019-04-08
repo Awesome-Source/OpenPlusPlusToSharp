@@ -42,30 +42,7 @@ namespace OpenPlusPlusToSharp.Parser
 
         private void ParseTopLevel()
         {
-            foreach (var parser in _parsers)
-            {
-                var result = parser.TryParse(_parseContext);
-
-                if (result.Success)
-                {
-                    _tree.RootNode.Descendents.Add(result.ParsedNode);
-                    _parseContext.CurrentIndex += result.ReadTokens;
-                    return;
-                }
-            }
-
-            ThrowTokenNotRecognizedExceptionIfAllTokensAreProcessed();
-        }
-
-        private void ThrowTokenNotRecognizedExceptionIfAllTokensAreProcessed()
-        {
-            if (_parseContext.AllTokensProcessed())
-            {
-                return;
-            }
-
-            var token = _parseContext.GetCurrentToken();
-            throw new TokenNotRecognizedException(token);
+            ParserRunner.RunAllParsers(_parsers, _parseContext, _tree.RootNode);
         }
     }
 }
