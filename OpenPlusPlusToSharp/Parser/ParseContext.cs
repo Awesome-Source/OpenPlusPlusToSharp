@@ -41,7 +41,7 @@ namespace OpenPlusPlusToSharp.Parser
         {
             var subContextTokenCount = endTokenOffset - startTokenOffset;
             var subContextTokens = Tokens
-                .Skip(startTokenOffset)
+                .Skip(CurrentIndex + startTokenOffset)
                 .Take(subContextTokenCount)
                 .ToList();
 

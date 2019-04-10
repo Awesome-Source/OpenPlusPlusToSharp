@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
-    public class MethodDeclarationParser : IParser
+    public class DestructorDeclarationParser : IParser
     {
         public ParseResult TryParse(ParseContext context)
         {

@@ -21,7 +21,12 @@ namespace OpenPlusPlusToSharp.Parser
             parsers.Add(new PragmaParser());
             parsers.Add(new UsingParser());
             parsers.Add(new ForwardDeclarationParser());
-            parsers.Add(new ClassParser(new MethodDeclarationParser()));
+            var argumentListParser = new ArgumentListParser();
+            var constructorDeclarationParser = new ConstructorDeclarationParser(argumentListParser);
+            var destructorDeclarationParser = new DestructorDeclarationParser();
+            var methodDeclarationParser = new MethodDeclarationParser();
+            var methodAccessModifierParser = new MethodAccessModifierParser(constructorDeclarationParser, destructorDeclarationParser, methodDeclarationParser);
+            parsers.Add(new ClassParser(methodAccessModifierParser));
 
             return parsers;
         }

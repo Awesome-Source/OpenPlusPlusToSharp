@@ -50,6 +50,9 @@
 
         ClassDeclaration,
         ClassInheritanceDeclaration,
-        AccessModifier
+        AccessModifier,
+        MethodDeclarationList,
+        ConstructorDeclaration,
+        ArgumentList
     }
 }

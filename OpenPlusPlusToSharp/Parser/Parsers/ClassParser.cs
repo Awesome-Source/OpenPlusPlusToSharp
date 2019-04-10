@@ -49,48 +49,16 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
 
         private ParseResult TryParseClass(ParseNode classNode, ParseContext context, int tokenOffset)
         {
-            var tokenOffsetOfClosingCurlyBracket = FindClosingCurlyBracket(context, classNode, tokenOffset);
+            var tokenOffsetOfClosingCurlyBracket = ParserHelper.FindClosingCurlyBracket(context, tokenOffset + 1);
+
+            if(tokenOffsetOfClosingCurlyBracket < 0)
+            {
+                throw new ParseException($"Missing curly brace for class {classNode.Content}");
+            }
+
             ParserRunner.RunAllParsers(_subParsers, context.CreateSubContext(tokenOffset + 1, tokenOffsetOfClosingCurlyBracket), classNode);
 
             return ParseResult.ParseSuccess(classNode, tokenOffsetOfClosingCurlyBracket);
-        }
-
-        private int FindClosingCurlyBracket(ParseContext context, ParseNode classNode, int tokenOffset)
-        {
-            var foundClosingBracket = false;
-            var openBracketCount = 1;
-
-            while (!foundClosingBracket)
-            {
-                var nextToken = context.GetFutureToken(++tokenOffset);
-
-                if(nextToken == null)
-                {
-                    throw new ParseException($"Missing closing bracket for class {classNode.Content}");
-                }
-
-                if(nextToken.TokenType != TokenType.SpecialCharacter)
-                {
-                    continue;
-                }
-
-                if(nextToken.Content == "{")
-                {
-                    openBracketCount++;
-                }
-
-                if (nextToken.Content == "}")
-                {
-                    openBracketCount--;
-                }
-
-                if(openBracketCount == 0)
-                {
-                    foundClosingBracket = true;
-                }
-            }
-
-            return tokenOffset;
         }
 
         private ParseResult TryParseClassWithSuperClasses(ParseNode classNode, ParseContext context)
@@ -104,7 +72,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
                 canParseClassInheritance = ConsumeCommaToken(context, ref tokenOffset);
             }            
 
-            return TryParseClass(classNode, context, tokenOffset);
+            return TryParseClass(classNode, context, tokenOffset + 1);
         }
 
         private bool ConsumeCommaToken(ParseContext context, ref int tokenOffset)
