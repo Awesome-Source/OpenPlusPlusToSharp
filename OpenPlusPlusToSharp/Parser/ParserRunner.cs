@@ -5,7 +5,15 @@ namespace OpenPlusPlusToSharp.Parser
 {
     public class ParserRunner
     {
-        public static int RunAllParsers(List<IParser> parsers, ParseContext context, ParseNode parentNode)
+        public static void RunAllParsersWhileThereAreTokensLeft(List<IParser> parsers, ParseContext context, ParseNode parentNode)
+        {
+            while (!context.AllTokensProcessed())
+            {
+                RunAllParsers(parsers, context, parentNode);
+            }
+        }
+
+        public static void RunAllParsers(List<IParser> parsers, ParseContext context, ParseNode parentNode)
         {
             foreach (var parser in parsers)
             {
@@ -15,12 +23,11 @@ namespace OpenPlusPlusToSharp.Parser
                 {
                     parentNode.Descendents.Add(result.ParsedNode);
                     context.CurrentIndex += result.ReadTokens;
-                    return result.ReadTokens;
+                    return;
                 }
             }
 
             ThrowTokenNotRecognizedExceptionIfAllTokensAreProcessed(context);
-            return 0;
         }
 
         private static void ThrowTokenNotRecognizedExceptionIfAllTokensAreProcessed(ParseContext context)

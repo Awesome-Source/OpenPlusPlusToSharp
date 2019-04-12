@@ -119,5 +119,10 @@ namespace OpenPlusPlusToSharp.Parser
 
             return true;
         }
+
+        public bool VirtuallyAllTokensProcessed(int tokenOffset)
+        {
+            return CurrentIndex + tokenOffset == Tokens.Count - 1;
+        }
     }
 }

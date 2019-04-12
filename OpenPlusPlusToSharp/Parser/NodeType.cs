@@ -53,6 +53,13 @@
         AccessModifier,
         MethodDeclarationList,
         ConstructorDeclaration,
-        ArgumentList
+        ParameterList,
+        Paramter,
+        TypeName,
+        SymbolName,
+        DefaultValue,
+        DestructorDeclaration,
+        MethodDeclaration,
+        ReturnType
     }
 }

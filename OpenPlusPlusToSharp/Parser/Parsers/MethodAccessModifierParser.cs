@@ -25,14 +25,39 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
             var methodListNode = new ParseNode("", NodeType.MethodDeclarationList);
             var readTokens = 0;
 
-            while (!context.AllTokensProcessed())
+            while (!context.VirtuallyAllTokensProcessed(readTokens))
             {
                 var accessibilityNode = ReadOrCreateMethodAccessibilityNode(context, ref readTokens);
-                readTokens += ParserRunner.RunAllParsers(_parsers, context, accessibilityNode);
+                var endOffset = DetermineEndOffsetOfMethodAccessibility(context, readTokens);
+                ParserRunner.RunAllParsersWhileThereAreTokensLeft(_parsers, context.CreateSubContext(readTokens, endOffset), accessibilityNode);
                 methodListNode.Descendents.Add(accessibilityNode);
+                readTokens = endOffset;
             }
 
             return ParseResult.ParseSuccess(methodListNode, readTokens);
+        }
+
+        private int DetermineEndOffsetOfMethodAccessibility(ParseContext context, int offset)
+        {
+            while (!context.VirtuallyAllTokensProcessed(offset))
+            {
+                if (!context.CheckFutureToken(offset, TokenType.Text) || !context.CheckFutureToken(offset + 1, TokenType.SpecialCharacter, ":"))
+                {
+                    offset++;
+                    continue;
+                }
+
+                var possibleAccessModifierToken = context.GetFutureToken(offset);
+                if(possibleAccessModifierToken == null || !KeyWords.IsAccessModifier(possibleAccessModifierToken.Content))
+                {
+                    offset++;
+                    continue;
+                }
+
+                return offset;
+            }
+
+            return offset;
         }
 
         private ParseNode ReadOrCreateMethodAccessibilityNode(ParseContext context, ref int readTokens)
@@ -50,7 +75,6 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
             }
 
             readTokens += 2;
-            context.CurrentIndex += 2;
 
             return new ParseNode(accessModifier.Content, NodeType.AccessModifier);
         }

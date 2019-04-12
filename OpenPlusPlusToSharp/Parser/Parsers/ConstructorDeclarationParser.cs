@@ -19,12 +19,17 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
 
         public ParseResult TryParse(ParseContext context)
         {
-            if(!context.CheckFutureToken(0, TokenType.Text) || context.CheckFutureToken(1, TokenType.SpecialCharacter, "("))
+            if(!context.CheckFutureToken(0, TokenType.Text) || !context.CheckFutureToken(1, TokenType.SpecialCharacter, "("))
             {
                 return ParseResult.CouldNotParse();
             }
 
             var constructorNameToken = context.GetCurrentToken();
+
+            if (constructorNameToken.Content.StartsWith('~'))
+            {
+                return ParseResult.CouldNotParse();
+            }
 
             var offsetOfClosingBracket = ParserHelper.FindClosingBracket(context, 2);
             if(offsetOfClosingBracket < 0)
@@ -32,20 +37,15 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
                 throw new ParseException($"Could not find closing bracket for constructor declaration of {constructorNameToken.Content} (opening bracket in line {constructorNameToken.LineNumber})");
             }
 
-            var endIndex = offsetOfClosingBracket + 1;
-            if (!context.CheckFutureToken(endIndex, TokenType.SpecialCharacter, ";"))
+            var endOffset = offsetOfClosingBracket + 1;
+            if (!context.CheckFutureToken(endOffset, TokenType.SpecialCharacter, ";"))
             {
                 return ParseResult.CouldNotParse();
             }
 
             var constructorNode = new ParseNode(constructorNameToken.Content, NodeType.ConstructorDeclaration);
-            var argumentList = new ParseNode("", NodeType.ArgumentList);
-            constructorNode.Descendents.Add(argumentList);
-
-            ParserRunner.RunAllParsers(_parsers, context.CreateSubContext(2, offsetOfClosingBracket), argumentList);
-
-
-            var readTokens = endIndex - context.CurrentIndex;
+            ParserRunner.RunAllParsers(_parsers, context.CreateSubContext(2, offsetOfClosingBracket), constructorNode);
+            var readTokens = endOffset + context.CurrentIndex + 1;
 
             return ParseResult.ParseSuccess(constructorNode, readTokens);
         }
