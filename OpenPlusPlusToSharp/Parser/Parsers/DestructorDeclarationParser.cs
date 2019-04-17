@@ -26,7 +26,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
                 return ParseResult.CouldNotParse();
             }
 
-            var destructorNameToken = context.GetCurrentToken();
+            var destructorNameToken = context.GetFutureToken(0);
 
             if (!destructorNameToken.Content.StartsWith('~'))
             {

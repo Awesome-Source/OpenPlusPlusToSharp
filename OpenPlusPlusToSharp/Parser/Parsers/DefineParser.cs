@@ -16,7 +16,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
         /// <returns></returns>
         public ParseResult TryParse(ParseContext context)
         {
-            var currentToken = context.GetCurrentToken();
+            var currentToken = context.GetFutureToken(0);
 
             switch (currentToken.Content)
             {

@@ -60,6 +60,9 @@
         DefaultValue,
         DestructorDeclaration,
         MethodDeclaration,
-        ReturnType
+        ReturnType,
+        PointerType,
+        ReferenceType,
+        TemplateType
     }
 }

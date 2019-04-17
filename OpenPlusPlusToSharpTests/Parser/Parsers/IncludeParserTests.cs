@@ -2,14 +2,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenPlusPlusToSharp.Parser;
 using OpenPlusPlusToSharp.Parser.Parsers;
 using OpenPlusPlusToSharp.Tokenizer;
-using OpenPlusPlusToSharpTests.ExampleSources;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenPlusPlusToSharpTests
+namespace OpenPlusPlusToSharpTests.Parser.Parsers
 {
     [TestClass]
-    public class ParserTests
+    public class IncludeParserTests
     {
         [TestMethod]
         public void ParseThreeIncludeDirectives_ReturnsParseTreeWithThreeDirectives()

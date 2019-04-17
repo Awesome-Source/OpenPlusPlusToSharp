@@ -37,7 +37,7 @@ namespace OpenPlusPlusToSharp.Parser
                 return;
             }
 
-            var token = context.GetCurrentToken();
+            var token = context.GetFutureToken(0);
             throw new TokenNotRecognizedException(token);
         }
     }

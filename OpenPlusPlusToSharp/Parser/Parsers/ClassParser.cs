@@ -19,7 +19,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
 
         public ParseResult TryParse(ParseContext context)
         {
-            var currentToken = context.GetCurrentToken();
+            var currentToken = context.GetFutureToken(0);
 
             if(currentToken.Content != KeyWords.Class)
             {

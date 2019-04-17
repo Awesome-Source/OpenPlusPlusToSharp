@@ -28,15 +28,6 @@ namespace OpenPlusPlusToSharp.Parser
             CurrentIndex = 0;
         }
 
-        /// <summary>
-        /// Returns the token at the current index. Returns null if the index is out of bounds.
-        /// </summary>
-        /// <returns>The token at the current index or null.</returns>
-        public Token GetCurrentToken()
-        {
-            return Tokens.ElementAtOrDefault(CurrentIndex);
-        }
-
         public ParseContext CreateSubContext(int startTokenOffset, int endTokenOffset)
         {
             var subContextTokenCount = endTokenOffset - startTokenOffset;
@@ -70,7 +61,7 @@ namespace OpenPlusPlusToSharp.Parser
         /// <returns>Returns true if all tokens have been processed. Otherwise false is returned.</returns>
         public bool AllTokensProcessed()
         {
-            return CurrentIndex == Tokens.Count - 1;
+            return CurrentIndex >= Tokens.Count;
         }
 
         /// <summary>

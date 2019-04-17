@@ -1,6 +1,6 @@
 ﻿using OpenPlusPlusToSharp.Tokenizer;
 
-namespace OpenPlusPlusToSharp.Parser.Parsers
+namespace OpenPlusPlusToSharp.Parser
 {
     public static class ParserHelper
     {
@@ -12,6 +12,11 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
         public static int FindClosingBracket(ParseContext context, int tokenOffset)
         {
             return FindClosingToken(context, tokenOffset, "(", ")");
+        }
+
+        public static int FindClosingAngleBracket(ParseContext context, int tokenOffset)
+        {
+            return FindClosingToken(context, tokenOffset, "<", ">");
         }
 
         private static int FindClosingToken(ParseContext context, int tokenOffset, string openingToken, string closingToken)
