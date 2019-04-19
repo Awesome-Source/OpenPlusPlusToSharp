@@ -1,4 +1,5 @@
 ﻿using OpenPlusPlusToSharp.Parser.Exceptions;
+using System;
 using System.Collections.Generic;
 
 namespace OpenPlusPlusToSharp.Parser
@@ -23,6 +24,7 @@ namespace OpenPlusPlusToSharp.Parser
                 {
                     parentNode.Descendents.Add(result.ParsedNode);
                     context.CurrentIndex += result.ReadTokens;
+                    Console.WriteLine($" - parsed {result.ParsedNode.NodeType}: {result.ParsedNode.Content}");
                     return;
                 }
             }

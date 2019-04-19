@@ -98,32 +98,9 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             parameterList
                 .ExpectedDescendentCount(3)
                 .ExpectedNodeType(NodeType.ParameterList)
-                .ExpectedDescendent(0, NodeType.Paramter, 3)
-                .ExpectedDescendent(1, NodeType.Paramter, 3)
-                .ExpectedDescendent(2, NodeType.Paramter, 2)
-                .CheckDescendent(0, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "int", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testInt", 0)
-                        .ExpectedDescendent(2, NodeType.DefaultValue, "42", 0);
-
-                })
-                .CheckDescendent(1, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "bool", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testBool", 0)
-                        .ExpectedDescendent(2, NodeType.DefaultValue, "true", 0);
-
-                })
-                .CheckDescendent(2, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "char", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testChar", 0);
-
-                });
+                .HasParameterDescendent(0, "int", "testInt", "42")
+                .HasParameterDescendent(1, "bool", "testBool", "true")
+                .HasParameterDescendent(2, "char", "testChar");
         }
 
         private static ParseTree ParseSource(string source)

@@ -8,27 +8,38 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
 {
     public class MethodDeclarationParser : IParser
     {
+        private readonly IParser _typeParser;
         private List<IParser> _parsers;
 
-        public MethodDeclarationParser(IParser argumentListParser)
+        public MethodDeclarationParser(IParser parameterListParser, IParser typeParser)
         {
             _parsers = new List<IParser>
             {
-                argumentListParser
+                parameterListParser
             };
+            _typeParser = typeParser;
         }
 
         public ParseResult TryParse(ParseContext context)
         {
-            if (!context.CheckFutureToken(0, TokenType.Text) || !context.CheckFutureToken(1, TokenType.Text) || !context.CheckFutureToken(2, TokenType.SpecialCharacter, "("))
+            var tokenOffset = 0;
+            var parseResult = _typeParser.TryParse(context.CreateSubContext(tokenOffset));
+            if (!parseResult.Success)
+            {
+                var currentToken = context.GetFutureToken(tokenOffset);
+                throw new ParseException($"Could not parse method return type near line {currentToken.LineNumber} column {currentToken.Column}");
+            }
+
+            tokenOffset += parseResult.ReadTokens;
+
+            if (!context.CheckFutureToken(tokenOffset, TokenType.Text) || !context.CheckFutureToken(tokenOffset + 1, TokenType.SpecialCharacter, "("))
             {
                 return ParseResult.CouldNotParse();
             }
 
-            var returnTypeToken = context.GetFutureToken(0);
-            var methodNameToken = context.GetFutureToken(1);
+            var methodNameToken = context.GetFutureToken(tokenOffset);
 
-            var offsetOfClosingBracket = ParserHelper.FindClosingBracket(context, 2);
+            var offsetOfClosingBracket = ParserHelper.FindClosingBracket(context, tokenOffset + 1);
             if (offsetOfClosingBracket < 0)
             {
                 throw new ParseException($"Could not find closing bracket for method declaration of {methodNameToken.Content} (opening bracket in line {methodNameToken.LineNumber})");
@@ -41,12 +52,12 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
             }
 
             var methodDeclarationNode = new ParseNode(methodNameToken.Content, NodeType.MethodDeclaration);
-            var returnTypeNode = new ParseNode(returnTypeToken.Content, NodeType.ReturnType);
+            var returnTypeNode = parseResult.ParsedNode;
             methodDeclarationNode.Descendents.Add(returnTypeNode);
-            ParserRunner.RunAllParsers(_parsers, context.CreateSubContext(2, offsetOfClosingBracket), methodDeclarationNode);
-            var readTokens = endOffset + context.CurrentIndex;
+            ParserRunner.RunAllParsers(_parsers, context.CreateSubContext(tokenOffset + 2, offsetOfClosingBracket), methodDeclarationNode);
+            var readTokens = endOffset + tokenOffset - 1;
 
-            return ParseResult.ParseSuccess(methodDeclarationNode, readTokens);
+            return ParseResult.ParseSuccess(methodDeclarationNode, readTokens + 1);
         }
     }
 }
