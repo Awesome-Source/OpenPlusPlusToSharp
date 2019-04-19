@@ -49,8 +49,8 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
                 throw new ParseException($"Could not parse template type {typeNameNode.Content}");
             }
 
-            readTokens += parseResult.ReadTokens;
-            typeNameNode.Descendents.Add(parseResult.ParsedNode);
+            readTokens += parseResult.ReadTokens + 1;
+            templateTypeDefinitionNode.Descendents.Add(parseResult.ParsedNode);
         }
 
         private static void HandlePointerAndReferenceTypes(ParseContext context, ref int readTokens, ParseNode typeNameNode)

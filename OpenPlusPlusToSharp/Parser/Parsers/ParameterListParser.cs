@@ -5,46 +5,61 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
 {
     public class ParameterListParser : IParser
     {
+        private readonly IParser _typeParser;
+
+        public ParameterListParser(IParser typeParser)
+        {
+            _typeParser = typeParser;
+        }
+
         public ParseResult TryParse(ParseContext context)
         {
             var parameterListNode = new ParseNode("", NodeType.ParameterList);
-            var tokenOffset = -1;
+            var tokenOffset = 0;
 
             while (!context.VirtuallyAllTokensProcessed(tokenOffset))
             {
-                var typeToken = context.GetFutureToken(++tokenOffset);
-                var parameterNameToken = context.GetFutureToken(++tokenOffset);
+                var parseResult = _typeParser.TryParse(context.CreateSubContext(tokenOffset));
+                if (!parseResult.Success)
+                {
+                    var currentToken = context.GetFutureToken(tokenOffset);
+                    throw new ParseException($"Could not parse parameter type near line {currentToken.LineNumber} column {currentToken.Column}");
+                }
 
-                if(typeToken == null || parameterNameToken == null || typeToken.TokenType != TokenType.Text || parameterNameToken.TokenType != TokenType.Text)
+                tokenOffset += parseResult.ReadTokens;
+                var parameterTypeNode = parseResult.ParsedNode;
+                var parameterNameToken = context.GetFutureToken(tokenOffset++);
+
+                if(parameterNameToken == null || parameterNameToken.TokenType != TokenType.Text)
                 {
                     return ParseResult.CouldNotParse();
                 }
 
                 var parameterNode = new ParseNode("", NodeType.Paramter);
-                var parameterTypeNode = new ParseNode(typeToken.Content, NodeType.TypeName);
+                
                 var parameterNameNode = new ParseNode(parameterNameToken.Content, NodeType.SymbolName);
                 parameterNode.Descendents.Add(parameterTypeNode);
                 parameterNode.Descendents.Add(parameterNameNode);
                 parameterListNode.Descendents.Add(parameterNode);
 
-                if(context.CheckFutureToken(tokenOffset + 1, TokenType.SpecialCharacter, "="))
+                if(context.CheckFutureToken(tokenOffset, TokenType.SpecialCharacter, "="))
                 {
                     AssignDefaultValue(context, ref tokenOffset, parameterNode);
                 }
 
-                if (context.CheckFutureToken(tokenOffset + 1, TokenType.SpecialCharacter, ","))
+                if (context.CheckFutureToken(tokenOffset, TokenType.SpecialCharacter, ","))
                 {
                     ++tokenOffset;
                 }
             }
 
-            return ParseResult.ParseSuccess(parameterListNode, tokenOffset);
+            return ParseResult.ParseSuccess(parameterListNode, tokenOffset + 1);
         }
 
         private static void AssignDefaultValue(ParseContext context, ref int tokenOffset, ParseNode parameterNode)
         {
-            var assignmentToken = context.GetFutureToken(++tokenOffset);
-            var defaultValueToken = context.GetFutureToken(++tokenOffset);
+            var assignmentToken = context.GetFutureToken(tokenOffset++);
+            var defaultValueToken = context.GetFutureToken(tokenOffset++);
             if (defaultValueToken == null)
             {
                 throw new ParseException($"Missing default value near line {assignmentToken.LineNumber} column {assignmentToken.Column}");

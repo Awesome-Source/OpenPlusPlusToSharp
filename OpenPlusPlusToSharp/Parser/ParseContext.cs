@@ -18,6 +18,15 @@ namespace OpenPlusPlusToSharp.Parser
         public int CurrentIndex { get; set; }
         private List<Token> Tokens;
 
+        internal ParseContext CreateSubContext(int startTokenOffset)
+        {
+            var subContextTokens = Tokens
+                .Skip(CurrentIndex + startTokenOffset)
+                .ToList();
+
+            return new ParseContext(subContextTokens);
+        }
+
         /// <summary>
         /// Creates a new <see cref="ParseContext"/> with the provided tokens.
         /// </summary>
@@ -113,7 +122,7 @@ namespace OpenPlusPlusToSharp.Parser
 
         public bool VirtuallyAllTokensProcessed(int tokenOffset)
         {
-            return CurrentIndex + tokenOffset == Tokens.Count - 1;
+            return CurrentIndex + tokenOffset >= Tokens.Count - 1;
         }
     }
 }
