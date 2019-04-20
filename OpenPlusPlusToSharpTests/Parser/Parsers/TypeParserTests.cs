@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenPlusPlusToSharp.Parser;
 using OpenPlusPlusToSharp.Parser.Parsers;
 using OpenPlusPlusToSharp.Tokenizer;
+using OpenPlusPlusToSharpTests.TestUtils;
 
 namespace OpenPlusPlusToSharpTests.Parser.Parsers
 {
@@ -13,10 +15,7 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
         public void ParseSimpleType()
         {
             var source = "int";
-            var tokenizer = new PlusPlusTokenizer(source);
-            var topLevelParsers = new List<IParser>() { new TypeParser() };
-            var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
-            var parseTree = parser.Parse();
+            var parseTree = ParseSource(source);
 
             Assert.AreEqual(1, parseTree.RootNode.Descendents.Count);
             Assert.AreEqual(NodeType.TypeName, parseTree.RootNode.Descendents[0].NodeType);
@@ -28,10 +27,7 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
         public void ParsePointerType()
         {
             var source = "int*";
-            var tokenizer = new PlusPlusTokenizer(source);
-            var topLevelParsers = new List<IParser>() { new TypeParser() };
-            var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
-            var parseTree = parser.Parse();
+            var parseTree = ParseSource(source);
 
             Assert.AreEqual(1, parseTree.RootNode.Descendents.Count);
             Assert.AreEqual(NodeType.TypeName, parseTree.RootNode.Descendents[0].NodeType);
@@ -46,10 +42,7 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
         public void ParseReferenceType()
         {
             var source = "int&";
-            var tokenizer = new PlusPlusTokenizer(source);
-            var topLevelParsers = new List<IParser>() { new TypeParser() };
-            var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
-            var parseTree = parser.Parse();
+            var parseTree = ParseSource(source);
 
             Assert.AreEqual(1, parseTree.RootNode.Descendents.Count);
             Assert.AreEqual(NodeType.TypeName, parseTree.RootNode.Descendents[0].NodeType);
@@ -64,10 +57,7 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
         public void ParsePointerPointerType()
         {
             var source = "int**";
-            var tokenizer = new PlusPlusTokenizer(source);
-            var topLevelParsers = new List<IParser>() { new TypeParser() };
-            var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
-            var parseTree = parser.Parse();
+            var parseTree = ParseSource(source);
 
             Assert.AreEqual(1, parseTree.RootNode.Descendents.Count);
             Assert.AreEqual(NodeType.TypeName, parseTree.RootNode.Descendents[0].NodeType);
@@ -84,10 +74,7 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
         public void ParsePointerPointerPointerType()
         {
             var source = "int***";
-            var tokenizer = new PlusPlusTokenizer(source);
-            var topLevelParsers = new List<IParser>() { new TypeParser() };
-            var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
-            var parseTree = parser.Parse();
+            var parseTree = ParseSource(source);
 
             Assert.AreEqual(1, parseTree.RootNode.Descendents.Count);
             Assert.AreEqual(NodeType.TypeName, parseTree.RootNode.Descendents[0].NodeType);
@@ -106,49 +93,96 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
         public void ParseTemplateType()
         {
             var source = "set<int>";
-            var tokenizer = new PlusPlusTokenizer(source);
-            var topLevelParsers = new List<IParser>() { new TypeParser() };
-            var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
-            var parseTree = parser.Parse();
+            var parseTree = ParseSource(source);
 
-            var topLevelNodes = parseTree.RootNode.Descendents;
-            Assert.AreEqual(1, topLevelNodes.Count);
-            var typeNameNode = topLevelNodes[0];
-            Assert.AreEqual(NodeType.TypeName, typeNameNode.NodeType);
-            Assert.AreEqual("set", typeNameNode.Content);
-            Assert.AreEqual(1, typeNameNode.Descendents.Count);
-            var templateTypeNode = typeNameNode.Descendents[0];
-            Assert.AreEqual(NodeType.TemplateType, templateTypeNode.NodeType);
-            Assert.AreEqual("", templateTypeNode.Content);
-            Assert.AreEqual(1, templateTypeNode.Descendents.Count);
-            Assert.AreEqual(NodeType.TypeName, templateTypeNode.Descendents[0].NodeType);
-            Assert.AreEqual("int", templateTypeNode.Descendents[0].Content);
+            var typeName = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
+            typeName
+                .ExpectedContent("set")
+                .ExpectedNodeType(NodeType.TypeName)
+                .ExpectedDescendentCount(1)
+                .ExpectedDescendent(0, NodeType.TemplateType, 1)
+                .CheckDescendent(0, templateType =>
+                {
+                    templateType
+                        .ExpectedDescendentCount(1)
+                        .ExpectedDescendent(0, NodeType.TypeName, "int", 0);
+                });
         }
 
         [TestMethod]
         public void ParseTemplatePointerType()
         {
             var source = "set<int*>";
+            var parseTree = ParseSource(source);
+
+            var typeName = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
+            typeName
+                .ExpectedContent("set")
+                .ExpectedNodeType(NodeType.TypeName)
+                .ExpectedDescendentCount(1)
+                .ExpectedDescendent(0, NodeType.TemplateType, 1)
+                .CheckDescendent(0, templateType =>
+                {
+                    templateType
+                        .ExpectedDescendentCount(1)
+                        .ExpectedDescendent(0, NodeType.TypeName, "int", 1)
+                        .CheckDescendent(0, templateTypeName => templateTypeName.ExpectedDescendent(0, NodeType.PointerType, 0));
+                });
+        }
+
+        [TestMethod]
+        public void ParseNestedTemplateType()
+        {
+            var source = "vector<set<int>>";
+            var parseTree = ParseSource(source);
+
+            var typeName = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
+            typeName
+                .ExpectedContent("vector")
+                .ExpectedNodeType(NodeType.TypeName)
+                .ExpectedDescendentCount(1)
+                .ExpectedDescendent(0, NodeType.TemplateType, 1)
+                .CheckDescendent(0, templateType =>
+                {
+                    templateType
+                        .ExpectedDescendentCount(1)
+                        .ExpectedDescendent(0, NodeType.TypeName, "set", 1)
+                        .CheckDescendent(0, typeName2 => {
+                            typeName2
+                                .ExpectedDescendentCount(1)
+                                .ExpectedDescendent(0, NodeType.TemplateType, 1)
+                                .CheckDescendent(0, templateType2 => templateType2.ExpectedDescendent(0, NodeType.TypeName, "int", 0));
+                        });
+                });
+        }
+
+        [TestMethod]
+        public void ParseTemplateWithMultipleTypeParametersType()
+        {
+            var source = "map<int, char>";
+            var parseTree = ParseSource(source);
+
+            var typeName = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
+            typeName
+                .ExpectedContent("map")
+                .ExpectedNodeType(NodeType.TypeName)
+                .ExpectedDescendentCount(1)
+                .ExpectedDescendent(0, NodeType.TemplateType, 2)
+                .CheckDescendent(0, templateType =>
+                {
+                    templateType
+                        .ExpectedDescendent(0, NodeType.TypeName, "int", 0)
+                        .ExpectedDescendent(1, NodeType.TypeName, "char", 0);
+                });
+        }
+
+        private static ParseTree ParseSource(string source)
+        {
             var tokenizer = new PlusPlusTokenizer(source);
             var topLevelParsers = new List<IParser>() { new TypeParser() };
             var parser = new PlusPlusParser("test.cpp", tokenizer.Tokenize(), topLevelParsers);
             var parseTree = parser.Parse();
-
-            var topLevelNodes = parseTree.RootNode.Descendents;
-            Assert.AreEqual(1, topLevelNodes.Count);
-            var typeNameNode = topLevelNodes[0];
-            Assert.AreEqual(NodeType.TypeName, typeNameNode.NodeType);
-            Assert.AreEqual("set", typeNameNode.Content);
-            Assert.AreEqual(1, typeNameNode.Descendents.Count);
-            var templateTypeNode = typeNameNode.Descendents[0];
-            Assert.AreEqual(NodeType.TemplateType, templateTypeNode.NodeType);
-            Assert.AreEqual("", templateTypeNode.Content);
-            Assert.AreEqual(1, templateTypeNode.Descendents.Count);
-            Assert.AreEqual(NodeType.TypeName, templateTypeNode.Descendents[0].NodeType);
-            Assert.AreEqual("int", templateTypeNode.Descendents[0].Content);
-            Assert.AreEqual(1, templateTypeNode.Descendents[0].Descendents.Count);
-            Assert.AreEqual(NodeType.PointerType, templateTypeNode.Descendents[0].Descendents[0].NodeType);
-            Assert.AreEqual("*", templateTypeNode.Descendents[0].Descendents[0].Content);
+            return parseTree;
         }
     }
 }

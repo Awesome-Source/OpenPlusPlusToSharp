@@ -17,6 +17,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
             }
 
             var typeNameNode = new ParseNode(topLevelTypeNameToken.Content, NodeType.TypeName);
+
             HandleTemplateType(context, ref readTokens, typeNameNode);
             HandlePointerAndReferenceTypes(context, ref readTokens, typeNameNode);
 
@@ -25,7 +26,7 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
 
         private void HandleTemplateType(ParseContext context, ref int readTokens, ParseNode typeNameNode)
         {
-            if(!context.CheckFutureToken(readTokens + 1, TokenType.SpecialCharacter, "<"))
+            if (!context.CheckFutureToken(readTokens + 1, TokenType.SpecialCharacter, "<"))
             {
                 return;
             }
@@ -33,24 +34,54 @@ namespace OpenPlusPlusToSharp.Parser.Parsers
             readTokens++;
             var offsetOfClosingBracket = ParserHelper.FindClosingAngleBracket(context, readTokens + 1);
 
-            if(offsetOfClosingBracket == -1)
+            if (offsetOfClosingBracket == -1)
             {
                 throw new ParseException($"Could not find closing angle bracket for type name {typeNameNode.Content}");
             }
 
             var templateTypeDefinitionNode = new ParseNode("", NodeType.TemplateType);
             typeNameNode.Descendents.Add(templateTypeDefinitionNode);
+            ParseAllTemplateTypeParameters(context, ref readTokens, typeNameNode, offsetOfClosingBracket, templateTypeDefinitionNode);
+        }
 
-            var subcontext = context.CreateSubContext(readTokens + 1, offsetOfClosingBracket);
-            var parseResult = TryParse(subcontext);
-
-            if (!parseResult.Success)
+        private void ParseAllTemplateTypeParameters(ParseContext context, ref int readTokens, ParseNode typeNameNode, int offsetOfClosingBracket, ParseNode templateTypeDefinitionNode)
+        {
+            var allTemplateTypeParametersRead = false;
+            var currentStartOffset = readTokens + 1;
+            while (!allTemplateTypeParametersRead)
             {
-                throw new ParseException($"Could not parse template type {typeNameNode.Content}");
+                var currentEndOffset = ReadToNextCommaOrEnd(context, currentStartOffset, offsetOfClosingBracket);
+                var subcontext = context.CreateSubContext(currentStartOffset, currentEndOffset);
+                var parseResult = TryParse(subcontext);
+
+                if (!parseResult.Success)
+                {
+                    throw new ParseException($"Could not parse template type {typeNameNode.Content}");
+                }
+
+                readTokens += parseResult.ReadTokens + 2;
+                templateTypeDefinitionNode.Descendents.Add(parseResult.ParsedNode);
+
+                currentStartOffset = currentEndOffset + 1;
+                if (currentEndOffset == offsetOfClosingBracket)
+                {
+                    allTemplateTypeParametersRead = true;
+                }
+            }
+        }
+
+        private int ReadToNextCommaOrEnd(ParseContext context, int currentStartOffset, int offsetOfClosingBracket)
+        {
+            for(var i = currentStartOffset; i < offsetOfClosingBracket; i++)
+            {
+                var currentToken = context.GetFutureToken(i);
+                if (currentToken != null && currentToken.TokenType == TokenType.SpecialCharacter && currentToken.Content == ",")
+                {
+                    return i;
+                }
             }
 
-            readTokens += parseResult.ReadTokens + 1;
-            templateTypeDefinitionNode.Descendents.Add(parseResult.ParsedNode);
+            return offsetOfClosingBracket;
         }
 
         private static void HandlePointerAndReferenceTypes(ParseContext context, ref int readTokens, ParseNode typeNameNode)
