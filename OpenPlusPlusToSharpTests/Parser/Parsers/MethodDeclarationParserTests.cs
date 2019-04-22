@@ -17,13 +17,10 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "void testMethod();";
             var parseTree = ParseSource(source);
 
-            var methodDeclaration = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            methodDeclaration
-                .ExpectedNodeType(NodeType.MethodDeclaration)
-                .ExpectedContent("testMethod")
-                .ExpectedDescendentCount(2)
-                .ExpectedDescendent(0, NodeType.TypeName, "void", 0)
-                .ExpectedDescendent(1, NodeType.ParameterList, 0);
+            var methodDeclarationNode = new ParseNode("testMethod", NodeType.MethodDeclaration);
+            methodDeclarationNode.WithType("void");
+            methodDeclarationNode.WithParameterList();
+            ParseNodeHierachyCompare.Compare(methodDeclarationNode, parseTree.RootNode.Descendents.Single());
         }
 
         [TestMethod]
@@ -32,27 +29,18 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "void testMethod(); int testMethod2();bool testMethod3();";
             var parseTree = ParseSource(source);
 
-            var root = new ParseNodeAssert(parseTree.RootNode);
-            root
-                .ExpectedDescendentCount(3)
-                .ExpectedDescendent(0, NodeType.MethodDeclaration, "testMethod", 2)
-                .ExpectedDescendent(1, NodeType.MethodDeclaration, "testMethod2", 2)
-                .ExpectedDescendent(2, NodeType.MethodDeclaration, "testMethod3", 2)
-                .CheckDescendent(0, methodDeclaration => {
-                    methodDeclaration
-                    .ExpectedDescendent(0, NodeType.TypeName, "void", 0)
-                    .ExpectedDescendent(1, NodeType.ParameterList, 0);
-                })
-                .CheckDescendent(1, methodDeclaration => {
-                    methodDeclaration
-                    .ExpectedDescendent(0, NodeType.TypeName, "int", 0)
-                    .ExpectedDescendent(1, NodeType.ParameterList, 0);
-                })
-                .CheckDescendent(2, methodDeclaration => {
-                    methodDeclaration
-                    .ExpectedDescendent(0, NodeType.TypeName, "bool", 0)
-                    .ExpectedDescendent(1, NodeType.ParameterList, 0);
-                });
+            var firstMethodNode = new ParseNode("testMethod", NodeType.MethodDeclaration);
+            firstMethodNode.WithType("void");
+            firstMethodNode.WithParameterList();
+
+            var secondMethodNode = new ParseNode("testMethod2", NodeType.MethodDeclaration);
+            secondMethodNode.WithType("int");
+            secondMethodNode.WithParameterList();
+
+            var thirdMethodNode = new ParseNode("testMethod3", NodeType.MethodDeclaration);
+            thirdMethodNode.WithType("bool");
+            thirdMethodNode.WithParameterList();
+            ParseNodeHierachyCompare.Compare(new List<ParseNode> {firstMethodNode, secondMethodNode, thirdMethodNode }, parseTree.RootNode.Descendents);
         }
 
         [TestMethod]
@@ -61,13 +49,10 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "int* testMethod();";
             var parseTree = ParseSource(source);
 
-            var methodDeclaration = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            methodDeclaration
-                .ExpectedNodeType(NodeType.MethodDeclaration)
-                .ExpectedDescendentCount(2)
-                .ExpectedDescendent(0, NodeType.TypeName, 1)
-                .ExpectedDescendent(1, NodeType.ParameterList, 0)
-                .CheckDescendent(0, returnType => returnType.ExpectedDescendentCount(1).ExpectedDescendent(0, NodeType.PointerType, 0));
+            var methodDeclarationNode = new ParseNode("testMethod", NodeType.MethodDeclaration);
+            methodDeclarationNode.WithType("int").WithPointerType();
+            methodDeclarationNode.WithParameterList();
+            ParseNodeHierachyCompare.Compare(methodDeclarationNode, parseTree.RootNode.Descendents.Single());
         }
 
         [TestMethod]
@@ -76,13 +61,11 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "void testMethod(int testInt);";
             var parseTree = ParseSource(source);
 
-            var methodDeclaration = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            methodDeclaration
-                .ExpectedNodeType(NodeType.MethodDeclaration)
-                .ExpectedDescendentCount(2)
-                .ExpectedDescendent(0, NodeType.TypeName, 0)
-                .ExpectedDescendent(1, NodeType.ParameterList, 1)
-                .CheckDescendent(1, parameterList => parameterList.HasParameterDescendent(0, "int", "testInt"));
+            var methodDeclarationNode = new ParseNode("testMethod", NodeType.MethodDeclaration);
+            methodDeclarationNode.WithType("void");
+            methodDeclarationNode.WithParameterList()
+                .WithParameter(parameter => parameter.WithType("int"), "testInt");
+            ParseNodeHierachyCompare.Compare(methodDeclarationNode, parseTree.RootNode.Descendents.Single());
         }
 
         [TestMethod]
@@ -91,14 +74,12 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "void testMethod(int testInt, bool testBool);";
             var parseTree = ParseSource(source);
 
-            var methodDeclaration = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            methodDeclaration
-                .ExpectedNodeType(NodeType.MethodDeclaration)
-                .ExpectedDescendentCount(2)
-                .ExpectedDescendent(0, NodeType.TypeName, 0)
-                .ExpectedDescendent(1, NodeType.ParameterList, 2)
-                .CheckDescendent(1, parameterList => parameterList.HasParameterDescendent(0, "int", "testInt"))
-                .CheckDescendent(1, parameterList => parameterList.HasParameterDescendent(1, "bool", "testBool"));
+            var methodDeclarationNode = new ParseNode("testMethod", NodeType.MethodDeclaration);
+            methodDeclarationNode.WithType("void");
+            methodDeclarationNode.WithParameterList()
+                .WithParameter(parameter => parameter.WithType("int"), "testInt")
+                .WithParameter(parameter => parameter.WithType("bool"), "testBool");
+            ParseNodeHierachyCompare.Compare(methodDeclarationNode, parseTree.RootNode.Descendents.Single());
         }
 
         private static ParseTree ParseSource(string source)

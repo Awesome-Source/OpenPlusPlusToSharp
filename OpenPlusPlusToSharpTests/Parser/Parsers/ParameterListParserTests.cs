@@ -17,18 +17,9 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "int testInt";
             var parseTree = ParseSource(source);
 
-            var parameterList = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            parameterList
-                .ExpectedDescendentCount(1)
-                .ExpectedNodeType(NodeType.ParameterList)
-                .ExpectedDescendent(0, NodeType.Paramter, 2)
-                .CheckDescendent(0, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "int", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testInt", 0);
-
-                });
+            var parameterListNode = new ParseNode("", NodeType.ParameterList);
+            parameterListNode.WithParameter(parameter => parameter.WithType("int"), "testInt");
+            ParseNodeHierachyCompare.Compare(parameterListNode, parseTree.RootNode.Descendents.Single());
         }
 
         [TestMethod]
@@ -37,19 +28,9 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "int testInt = 42";
             var parseTree = ParseSource(source);
 
-            var parameterList = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            parameterList
-                .ExpectedDescendentCount(1)
-                .ExpectedNodeType(NodeType.ParameterList)
-                .ExpectedDescendent(0, NodeType.Paramter, 3)
-                .CheckDescendent(0, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "int", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testInt", 0)
-                        .ExpectedDescendent(2, NodeType.DefaultValue, "42", 0);
-
-                });
+            var parameterListNode = new ParseNode("", NodeType.ParameterList);
+            parameterListNode.WithParameter(parameter => parameter.WithType("int"), "testInt", "42");
+            ParseNodeHierachyCompare.Compare(parameterListNode, parseTree.RootNode.Descendents.Single());
         }
 
         [TestMethod]
@@ -58,34 +39,11 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "int testInt, bool testBool, char testChar";
             var parseTree = ParseSource(source);
 
-            var parameterList = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            parameterList
-                .ExpectedDescendentCount(3)
-                .ExpectedNodeType(NodeType.ParameterList)
-                .ExpectedDescendent(0, NodeType.Paramter, 2)
-                .ExpectedDescendent(1, NodeType.Paramter, 2)
-                .ExpectedDescendent(2, NodeType.Paramter, 2)
-                .CheckDescendent(0, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "int", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testInt", 0);
-
-                })
-                .CheckDescendent(1, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "bool", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testBool", 0);
-
-                })
-                .CheckDescendent(2, parameter =>
-                {
-                    parameter
-                        .ExpectedDescendent(0, NodeType.TypeName, "char", 0)
-                        .ExpectedDescendent(1, NodeType.SymbolName, "testChar", 0);
-
-                });
+            var parameterListNode = new ParseNode("", NodeType.ParameterList);
+            parameterListNode.WithParameter(parameter => parameter.WithType("int"), "testInt");
+            parameterListNode.WithParameter(parameter => parameter.WithType("bool"), "testBool");
+            parameterListNode.WithParameter(parameter => parameter.WithType("char"), "testChar");
+            ParseNodeHierachyCompare.Compare(parameterListNode, parseTree.RootNode.Descendents.Single());
         }
 
         [TestMethod]
@@ -94,13 +52,11 @@ namespace OpenPlusPlusToSharpTests.Parser.Parsers
             var source = "int testInt = 42, bool testBool = true, char testChar";
             var parseTree = ParseSource(source);
 
-            var parameterList = new ParseNodeAssert(parseTree.RootNode.Descendents.Single());
-            parameterList
-                .ExpectedDescendentCount(3)
-                .ExpectedNodeType(NodeType.ParameterList)
-                .HasParameterDescendent(0, "int", "testInt", "42")
-                .HasParameterDescendent(1, "bool", "testBool", "true")
-                .HasParameterDescendent(2, "char", "testChar");
+            var parameterListNode = new ParseNode("", NodeType.ParameterList);
+            parameterListNode.WithParameter(parameter => parameter.WithType("int"), "testInt", "42");
+            parameterListNode.WithParameter(parameter => parameter.WithType("bool"), "testBool", "true");
+            parameterListNode.WithParameter(parameter => parameter.WithType("char"), "testChar");
+            ParseNodeHierachyCompare.Compare(parameterListNode, parseTree.RootNode.Descendents.Single());
         }
 
         private static ParseTree ParseSource(string source)
