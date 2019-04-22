@@ -5,10 +5,17 @@ using OpenPlusPlusToSharp.Tokenizer;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse a class definition.
+    /// </summary>
     public class ClassParser : IParser
     {
-        private List<IParser> _subParsers;
+        private readonly List<IParser> _subParsers;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClassParser"/> class.
+        /// </summary>
+        /// <param name="methodDeclarationParser"></param>
         public ClassParser(IParser methodDeclarationParser)
         {
             _subParsers = new List<IParser>

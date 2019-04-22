@@ -1,14 +1,16 @@
 ﻿using OpenPlusPlusToSharp.Constants;
 using OpenPlusPlusToSharp.Parser.Exceptions;
 using OpenPlusPlusToSharp.Tokenizer;
-using System;
 using System.Collections.Generic;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse a method access modifier area.
+    /// </summary>
     public class MethodAccessModifierParser : IParser
     {
-        private List<IParser> _parsers;
+        private readonly List<IParser> _parsers;
 
         public MethodAccessModifierParser(IParser constructorParser, IParser destructorParser, IParser methodDeclarationParser)
         {

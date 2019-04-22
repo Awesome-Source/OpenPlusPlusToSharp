@@ -10,11 +10,11 @@ namespace OpenPlusPlusToSharp.Tokenizer
     /// </summary>
     public class PlusPlusTokenizer
     {
-        private string _source;
+        private readonly string _source;
         private int _currentIndex = 0;
         private int _lineNumber = 0;
         private int _columnIndex = 0;
-        private static List<char> _specialChars = new List<char>
+        private static readonly List<char> _specialChars = new List<char>
         {
             '{', '}', '(', ')', ';', ',', '<', '>', '=', '!', '?', ':', '+', '-', '*', '/', '%', '&'
         };

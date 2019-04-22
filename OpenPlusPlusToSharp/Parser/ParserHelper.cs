@@ -2,18 +2,39 @@
 
 namespace OpenPlusPlusToSharp.Parser
 {
+    /// <summary>
+    /// Helper class for common parsing methods.
+    /// </summary>
     public static class ParserHelper
     {
+        /// <summary>
+        /// Finds the offset of the closing curly brace starting at the provided offset. Returns -1 if no closing brace is found.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tokenOffset"></param>
+        /// <returns></returns>
         public static int FindClosingCurlyBracket(ParseContext context, int tokenOffset)
         {
             return FindClosingToken(context, tokenOffset, "{", "}");
         }
 
+        /// <summary>
+        /// Finds the offset of the closing brace starting at the provided offset. Returns -1 if no closing brace is found.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tokenOffset"></param>
+        /// <returns></returns>
         public static int FindClosingBracket(ParseContext context, int tokenOffset)
         {
             return FindClosingToken(context, tokenOffset, "(", ")");
         }
 
+        /// <summary>
+        /// Finds the offset of the closing angle brace starting at the provided offset. Returns -1 if no closing brace is found.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tokenOffset"></param>
+        /// <returns></returns>
         public static int FindClosingAngleBracket(ParseContext context, int tokenOffset)
         {
             return FindClosingToken(context, tokenOffset, "<", ">");

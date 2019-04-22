@@ -1,15 +1,16 @@
 ﻿using OpenPlusPlusToSharp.Parser.Exceptions;
 using OpenPlusPlusToSharp.Tokenizer;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse a method declaration.
+    /// </summary>
     public class MethodDeclarationParser : IParser
     {
         private readonly IParser _typeParser;
-        private List<IParser> _parsers;
+        private readonly List<IParser> _parsers;
 
         public MethodDeclarationParser(IParser parameterListParser, IParser typeParser)
         {

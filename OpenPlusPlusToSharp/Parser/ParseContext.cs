@@ -16,16 +16,7 @@ namespace OpenPlusPlusToSharp.Parser
         /// The index of the current token that is processed.
         /// </summary>
         public int CurrentIndex { get; set; }
-        private List<Token> Tokens;
-
-        internal ParseContext CreateSubContext(int startTokenOffset)
-        {
-            var subContextTokens = Tokens
-                .Skip(CurrentIndex + startTokenOffset)
-                .ToList();
-
-            return new ParseContext(subContextTokens);
-        }
+        private readonly List<Token> _tokens;
 
         /// <summary>
         /// Creates a new <see cref="ParseContext"/> with the provided tokens.
@@ -33,16 +24,36 @@ namespace OpenPlusPlusToSharp.Parser
         /// <param name="tokens">The tokens that should be parsed.</param>
         public ParseContext(List<Token> tokens)
         {
-            Tokens = tokens;
+            _tokens = tokens;
             CurrentIndex = 0;
         }
 
+        /// <summary>
+        /// Creates a new parse context from the current one containing only the tokens between the specified offsets.
+        /// </summary>
+        /// <param name="startTokenOffset"></param>
+        /// <param name="endTokenOffset"></param>
+        /// <returns></returns>
         public ParseContext CreateSubContext(int startTokenOffset, int endTokenOffset)
         {
             var subContextTokenCount = endTokenOffset - startTokenOffset;
-            var subContextTokens = Tokens
+            var subContextTokens = _tokens
                 .Skip(CurrentIndex + startTokenOffset)
                 .Take(subContextTokenCount)
+                .ToList();
+
+            return new ParseContext(subContextTokens);
+        }
+
+        /// <summary>
+        /// Creates a new parse context from the current one containing only the tokens starting from the <paramref name="startTokenOffset"/> to the end.
+        /// </summary>
+        /// <param name="startTokenOffset"></param>
+        /// <returns></returns>
+        public ParseContext CreateSubContext(int startTokenOffset)
+        {
+            var subContextTokens = _tokens
+                .Skip(CurrentIndex + startTokenOffset)
                 .ToList();
 
             return new ParseContext(subContextTokens);
@@ -61,7 +72,7 @@ namespace OpenPlusPlusToSharp.Parser
                 throw new ArgumentException("Invalid offset. It is not allowed to access a previous token or the current token from this method.");
             }
 
-            return Tokens.ElementAtOrDefault(CurrentIndex + offsetFromCurrentIndex);
+            return _tokens.ElementAtOrDefault(CurrentIndex + offsetFromCurrentIndex);
         }
 
         /// <summary>
@@ -70,7 +81,7 @@ namespace OpenPlusPlusToSharp.Parser
         /// <returns>Returns true if all tokens have been processed. Otherwise false is returned.</returns>
         public bool AllTokensProcessed()
         {
-            return CurrentIndex >= Tokens.Count;
+            return CurrentIndex >= _tokens.Count;
         }
 
         /// <summary>
@@ -120,9 +131,14 @@ namespace OpenPlusPlusToSharp.Parser
             return true;
         }
 
+        /// <summary>
+        /// Checks whether all tokens would be processed with the provided offset or not.
+        /// </summary>
+        /// <param name="tokenOffset"></param>
+        /// <returns></returns>
         public bool VirtuallyAllTokensProcessed(int tokenOffset)
         {
-            return CurrentIndex + tokenOffset >= Tokens.Count - 1;
+            return CurrentIndex + tokenOffset >= _tokens.Count - 1;
         }
     }
 }

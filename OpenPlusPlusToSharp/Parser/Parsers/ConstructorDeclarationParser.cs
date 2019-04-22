@@ -5,9 +5,12 @@ using System.Collections.Generic;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse a constructor declaration.
+    /// </summary>
     public class ConstructorDeclarationParser : IParser
     {
-        private List<IParser> _parsers;
+        private readonly List<IParser> _parsers;
 
         public ConstructorDeclarationParser(IParser argumentListParser)
         {

@@ -3,10 +3,17 @@ using OpenPlusPlusToSharp.Tokenizer;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse a parameter list
+    /// </summary>
     public class ParameterListParser : IParser
     {
         private readonly IParser _typeParser;
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ParameterListParser"/> class.
+        /// </summary>
+        /// <param name="typeParser"></param>
         public ParameterListParser(IParser typeParser)
         {
             _typeParser = typeParser;

@@ -14,13 +14,15 @@ namespace OpenPlusPlusToSharp.Parser
         /// <returns>Returns all top level parsers.</returns>
         public static List<IParser> GetTopLevelParsers()
         {
-            var parsers = new List<IParser>();
+            var parsers = new List<IParser>
+            {
+                new IncludeParser(),
+                new DefineParser(),
+                new PragmaParser(),
+                new UsingParser(),
+                new ForwardDeclarationParser()
+            };
 
-            parsers.Add(new IncludeParser());
-            parsers.Add(new DefineParser());
-            parsers.Add(new PragmaParser());
-            parsers.Add(new UsingParser());
-            parsers.Add(new ForwardDeclarationParser());
             var typeParser = new TypeParser();
             var parameterListParser = new ParameterListParser(typeParser);
             var constructorDeclarationParser = new ConstructorDeclarationParser(parameterListParser);

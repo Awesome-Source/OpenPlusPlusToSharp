@@ -1,14 +1,20 @@
 ﻿using OpenPlusPlusToSharp.Parser.Exceptions;
 using OpenPlusPlusToSharp.Tokenizer;
-using System;
 using System.Collections.Generic;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse a destructor.
+    /// </summary>
     public class DestructorDeclarationParser : IParser
     {
-        private List<IParser> _parsers;
+        private readonly List<IParser> _parsers;
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="DestructorDeclarationParser"/> class.
+        /// </summary>
+        /// <param name="argumentListParser"></param>
         public DestructorDeclarationParser(IParser argumentListParser)
         {
             _parsers = new List<IParser>

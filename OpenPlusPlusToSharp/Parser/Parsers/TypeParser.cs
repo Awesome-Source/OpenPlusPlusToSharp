@@ -4,6 +4,9 @@ using OpenPlusPlusToSharp.Tokenizer;
 
 namespace OpenPlusPlusToSharp.Parser.Parsers
 {
+    /// <summary>
+    /// Parser that can parse type definitions.
+    /// </summary>
     public class TypeParser : IParser
     {
         public ParseResult TryParse(ParseContext context)
